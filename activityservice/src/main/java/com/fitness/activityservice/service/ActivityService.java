@@ -4,6 +4,8 @@ import com.fitness.activityservice.dto.ActivityRequest;
 import com.fitness.activityservice.dto.ActivityResponse;
 import com.fitness.activityservice.model.Activity;
 import com.fitness.activityservice.repository.ActivityRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 public class ActivityService {
 
+    private static final Logger log = LogManager.getLogger(ActivityService.class);
     @Autowired
     private ActivityRepository repository;
     @Autowired
@@ -49,7 +52,7 @@ public class ActivityService {
         try{
             rabbitTemplate.convertAndSend(exchange, routingKey, savedActivity);
         }catch(Exception e){
-            //log error
+            log.error("Failed to publish activity to RabbitMQ", e);
         }
         return mapToResponse(savedActivity);
     }
